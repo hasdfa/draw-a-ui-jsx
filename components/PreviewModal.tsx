@@ -98,14 +98,21 @@ export function PreviewModal({
 
 if (typeof window !== 'undefined') {
   const knownModules: Record<string, any> = {
-    '@mui/material': require('@mui/material'),
-    '@mui/icons-material': require('@mui/icons-material'),
-    'react': require('react'),
+    get 'echarts'() { return require('echarts') },
+    get 'echarts-for-react'() {
+      const { default: ReactECharts } = require('echarts-for-react')
+      return { ReactECharts, default: ReactECharts }
+    },
+    get '@mui/core'() { return require('@mui/core') },
+    get '@mui/material'() { return require('@mui/material') },
+    get '@mui/x-charts'() { return require('@mui/x-charts') },
+    get '@mui/icons-material'() { return require('@mui/icons-material') },
+    get 'react'() { return require('react') },
   }
 
   // @ts-ignore
   window.__require_known_module = (module: string) => {
-    return knownModules[module] ?? (() => {
+    const Result = knownModules[module] ?? (() => {
       try {
         return require(module)
       } catch (err) {
@@ -114,13 +121,18 @@ if (typeof window !== 'undefined') {
     })() ?? (() => {
       const root = module.split('/').slice(0, -1).join('/');
       const Elem = module.slice(root.length + 1);
-      const pkg = knownModules[root]
 
-      console.log('PKG', root, Elem, pkg[Elem])
-      return pkg?.[Elem]
+      return knownModules[root]?.[Elem]
     })() ?? (() => {
       throw new Error(`Unknown module: ${module}`);
     })()
+
+    console.log(`require("${module}") = `, Result)
+    if (!Result) {
+      alert(module)
+    }
+
+    return Result
   }
 }
 
@@ -176,36 +188,89 @@ const ShadowDOMComponent = (props: { children: React.ReactElement }) => {
 function RenderJSXCodeComponent(props: {
   srcDoc: string
 }) {
+  const iframeRef = React.useRef<HTMLIFrameElement | null>(null)
+
   const Component = React.useMemo(() => {
     const jsxString = props.srcDoc;
-    console.log('RAW', jsxString, '\n\n')
+    console.log('RAW', jsxString)
 
     const babel = require('@babel/standalone')
-
     const { code } = babel.transform(jsxString, {
       presets: ['env', 'react']
     });
 
-    console.log('COMPILED', code, '\n\n')
+    console.log('transformed', code)
     return eval(`(function(){` +
         `var require=window.__require_known_module;` +
         `var exports={};` +
         code +
-        `;console.log(React);` +
-        `;return exports` +
+        `;return exports;` +
     `})()`)
   }, [props.srcDoc])
 
-  if (!Component || !Component.default) {
-    return null
-  }
+  const [isLoaded, setLoaded] = React.useState(false)
 
-  const Element = Component.default()
-  if (!Element) {
-    return null
-  }
+  React.useEffect(() => {
+    if (!isLoaded || !iframeRef.current) {
+      console.error('iframeRef.current is null')
+      return
+    }
 
-  return Element
+    const rootElement = iframeRef.current?.contentDocument?.getElementById('root')
+    const emotionRoot = iframeRef.current?.contentDocument?.getElementById('emotion-cache')
+    if (!rootElement || !emotionRoot) {
+      console.error('rootElement || emotionRoot is null')
+      return
+    }
+
+    if (!Component || !Component.default) {
+      console.error('Component is null')
+      return
+    }
+
+    const cache = createCache({
+      key: 'css',
+      prepend: true,
+      container: emotionRoot,
+    });
+
+    // Render the children inside the shadow DOM
+    ReactDOM.render(
+        <CacheProvider value={cache}>
+          <CssBaseline />
+          {React.createElement(Component.default, {})}
+        </CacheProvider>,
+        rootElement
+    );
+
+    return () => {
+      ReactDOM.unmountComponentAtNode(rootElement)
+    }
+  }, [isLoaded, Component])
+
+
+  return (
+      <iframe
+          ref={iframeRef}
+          className="w-full h-full"
+          onLoad={() => setLoaded(true)}
+          srcDoc={
+              '<!DOCTYPE html>' +
+              '<html lang="en">' +
+              '    <head>' +
+              '        <meta charset="utf-8" />' +
+              '        <meta name="viewport" content="width=device-width, initial-scale=1" />' +
+              '        <title>Demo</title>' +
+              '        <style id="emotion-cache"></style>' +
+              '    </head>' +
+              '    <body>' +
+              '        <noscript>You need to enable JavaScript to run this app.</noscript>' +
+              '        <div id="root"></div>' +
+              '    </body>' +
+              '</html>'
+          }
+      />
+  )
 }
 
 interface TabButtonProps extends React.HTMLAttributes<HTMLButtonElement> {

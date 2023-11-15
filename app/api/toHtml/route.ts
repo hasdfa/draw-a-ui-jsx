@@ -1,7 +1,8 @@
 const systemPrompt = `You are an expert react developer. A user will provide you with a
  low-fidelity wireframe of an application and you will return
  a single js file that uses @mui/material to create the website. Use creative license to make the application more fleshed out.
-if you need to insert an image, use placehold.co to create a placeholder image. Respond only with the js file.`;
+if you need to insert an image, use placehold.co to create a placeholder image. Respond only with the js file. `
+    + `Packages: react @mui/core @mui/material @mui/icons-material`;
 
 export async function POST(request: Request) {
   const { image } = await request.json();
