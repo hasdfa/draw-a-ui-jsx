@@ -1,5 +1,7 @@
 # draw-a-ui
 
+> This is a based on the https://github.com/SawyerHood/draw-a-ui but with ability to draw React JSX modules and instantly render it via react
+
 This is an app that uses tldraw and the gpt-4-vision api to generate html based on a wireframe you draw.
 
 > I'm currently working on a hosted version of draw-a-ui. You can join the waitlist at [draw-a-ui.com](https://draw-a-ui.com). The core of it will always be open source and available here.
