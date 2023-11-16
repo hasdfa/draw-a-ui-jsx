@@ -98,15 +98,16 @@ export function PreviewModal({
 
 if (typeof window !== 'undefined') {
   const knownModules: Record<string, any> = {
-    get 'echarts'() { return require('echarts') },
-    get 'echarts-for-react'() {
-      const { default: ReactECharts } = require('echarts-for-react')
-      return { ReactECharts, default: ReactECharts }
-    },
+    // get 'echarts'() { return require('echarts') },
+    // get 'echarts-for-react'() {
+    //   const { default: ReactECharts } = require('echarts-for-react')
+    //   return { ReactECharts, default: ReactECharts }
+    // },
     get '@mui/core'() { return require('@mui/core') },
     get '@mui/material'() { return require('@mui/material') },
     get '@mui/x-charts'() { return require('@mui/x-charts') },
     get '@mui/icons-material'() { return require('@mui/icons-material') },
+    get '@mui/x-data-grid'() { return require('@mui/x-data-grid') },
     get 'react'() { return require('react') },
   }
 
@@ -136,55 +137,6 @@ if (typeof window !== 'undefined') {
   }
 }
 
-const ShadowDOMComponent = (props: { children: React.ReactElement }) => {
-  const hostRef = React.useRef<HTMLDivElement | null>(null);
-  const shadowRootRef = React.useRef<ShadowRoot | null>(null);
-
-  useEffect(() => {
-    if (!hostRef.current) {
-      return;
-    }
-
-    if (!shadowRootRef.current) {
-      // Create a shadow root
-      shadowRootRef.current = hostRef.current.attachShadow({ mode: 'closed' });
-    }
-
-    const emotionRoot = document.createElement('style');
-    const shadowRootElement = document.createElement('div');
-
-    shadowRootRef.current.appendChild(emotionRoot);
-    shadowRootRef.current.appendChild(shadowRootElement);
-
-    const cache = createCache({
-      key: 'css',
-      prepend: true,
-      container: emotionRoot,
-    });
-
-    // Render the children inside the shadow DOM
-    ReactDOM.render(
-        <CacheProvider value={cache}>
-          <CssBaseline />
-          {props.children}
-        </CacheProvider>,
-        shadowRootElement
-    );
-
-    return () => {
-      if (!shadowRootRef.current) {
-        return
-      }
-
-      // Cleanup: unmount React component from the shadow DOM
-      ReactDOM.unmountComponentAtNode(shadowRootRef.current);
-      shadowRootRef.current.innerHTML = '';
-    };
-  }, [props.children]);
-
-  return <div ref={hostRef} className="w-full h-full"/>
-};
-
 function RenderJSXCodeComponent(props: {
   srcDoc: string
 }) {
@@ -200,12 +152,33 @@ function RenderJSXCodeComponent(props: {
     });
 
     console.log('transformed', code)
-    return eval(`(function(){` +
-        `var require=window.__require_known_module;` +
-        `var exports={};` +
-        code +
-        `;return exports;` +
-    `})()`)
+    let polyfills = ''
+
+    const compile = (): any => {
+      try {
+        return eval(`(function(){` +
+            `var require=window.__require_known_module;` +
+            `var exports={};` +
+            polyfills + ';' +
+            code +
+            `;return exports;` +
+            `})()`)
+      } catch (error) {
+        console.error(error)
+
+        const msg = (error as any).message
+        const match = /ReferenceError: (.+) is/.exec(msg)
+        if (match) {
+          polyfills += `var ${match[1]}=()=>'Not implemented';`
+          console.log(`Added polyfill: ${match[1]}`, polyfills)
+          return compile()
+        }
+
+        throw error
+      }
+    }
+
+    return compile()
   }, [props.srcDoc])
 
   const [isLoaded, setLoaded] = React.useState(false)

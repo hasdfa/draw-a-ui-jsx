@@ -17,6 +17,7 @@
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.14.18",
     "@mui/x-charts": "^6.18.1",
+    "@mui/x-data-grid": "^6.18.1",
     "@tldraw/tldraw": "2.0.0-alpha.17",
     "canvas-size": "^1.2.6",
     "echarts": "^5.4.3",
