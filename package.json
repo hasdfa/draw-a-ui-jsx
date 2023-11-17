@@ -25,7 +25,9 @@
     "next": "14.0.1",
     "prismjs": "^1.29.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-charts": "^3.0.0-beta.57",
+    "react-dom": "^18",
+    "recharts": "^2.9.3"
   },
   "devDependencies": {
     "@types/canvas-size": "^1.2.1",

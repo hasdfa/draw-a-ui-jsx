@@ -108,6 +108,8 @@ if (typeof window !== 'undefined') {
     get '@mui/x-charts'() { return require('@mui/x-charts') },
     get '@mui/icons-material'() { return require('@mui/icons-material') },
     get '@mui/x-data-grid'() { return require('@mui/x-data-grid') },
+    get 'react-charts'() { return require('react-charts') },
+    get 'recharts'() { return require('recharts') },
     get 'react'() { return require('react') },
   }
 
