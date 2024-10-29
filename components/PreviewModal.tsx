@@ -1,11 +1,11 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Prism from "prismjs";
 import "prismjs/components/prism-cshtml";
 
 import "prismjs/themes/prism-tomorrow.css";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import { CacheProvider } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
 import createCache from "@emotion/cache";
@@ -210,7 +210,8 @@ function RenderJSXCodeComponent(props: {
     });
 
     // Render the children inside the shadow DOM
-    ReactDOM.render(
+    const root = ReactDOM.createRoot(rootElement)
+    root.render(
         <CacheProvider value={cache}>
           <CssBaseline />
           {React.createElement(Component.default, {})}
@@ -219,7 +220,7 @@ function RenderJSXCodeComponent(props: {
     );
 
     return () => {
-      ReactDOM.unmountComponentAtNode(rootElement)
+      root.unmount();
     }
   }, [isLoaded, Component])
 
