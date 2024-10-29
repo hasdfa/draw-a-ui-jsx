@@ -49,7 +49,9 @@ export async function POST(request: Request) {
         content: [
           {
             type: "image_url",
-            image_url: image,
+            image_url: {
+              url:  image,
+            },
           },
           userPrompt,
         ],
