@@ -210,7 +210,8 @@ function RenderJSXCodeComponent(props: {
     });
 
     // Render the children inside the shadow DOM
-    ReactDOM.render(
+    const root = ReactDOM.createRoot(rootElement)
+    root.render(
         <CacheProvider value={cache}>
           <CssBaseline />
           {React.createElement(Component.default, {})}
@@ -219,7 +220,7 @@ function RenderJSXCodeComponent(props: {
     );
 
     return () => {
-      ReactDOM.unmountComponentAtNode(rootElement)
+      root.unmount();
     }
   }, [isLoaded, Component])
 
