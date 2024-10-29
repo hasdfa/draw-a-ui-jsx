@@ -36,7 +36,7 @@ You are tasked with converting an image into a single JavaScript file using @mui
 
 export async function POST(request: Request) {
   const { image } = await request.json();
-  const body: GPT4VCompletionRequest = {
+  const body = {
     model: "gpt-4o-mini",
     max_tokens: 16384,
     messages: [
