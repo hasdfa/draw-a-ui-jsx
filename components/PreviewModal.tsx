@@ -215,8 +215,7 @@ function RenderJSXCodeComponent(props: {
         <CacheProvider value={cache}>
           <CssBaseline />
           {React.createElement(Component.default, {})}
-        </CacheProvider>,
-        rootElement
+        </CacheProvider>
     );
 
     return () => {
