@@ -105,6 +105,7 @@ if (typeof window !== 'undefined') {
     // },
     get '@mui/core'() { return require('@mui/core') },
     get '@mui/material'() { return require('@mui/material') },
+    get '@mui/material/styles'() { return require('@mui/material/styles') },
     get '@mui/x-charts'() { return require('@mui/x-charts') },
     get '@mui/icons-material'() { return require('@mui/icons-material') },
     get '@mui/x-data-grid'() { return require('@mui/x-data-grid') },
