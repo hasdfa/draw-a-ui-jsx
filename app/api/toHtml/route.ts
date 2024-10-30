@@ -34,7 +34,7 @@ const userPrompt = `
 You are tasked with converting an image into a single JavaScript file using @mui/material components. Your goal is to create a functional and visually accurate representation of the given UI using Material-UI components.
 `
 
-export const maxDuration = 60; // This function can run for a maximum of 5 seconds
+export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
